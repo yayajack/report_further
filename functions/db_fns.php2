@@ -1,0 +1,133 @@
+<?php
+
+
+function db_connect() {
+  echo "gaga";
+/*   $result = new mysqli("localhost", "root", "root","skin");
+  if ($result->connect_error) {
+    echo "Connect failed: %s\n", $result->connect_error;
+  }
+
+   if (!$result) {
+      return false;
+   } 
+   //$result->autocommit(TRUE);
+   return $result;
+*/
+}
+/*function login($id,$name){
+  $conn=db_connect();
+  $conn->query("SET NAMES UTF8");
+  $result = $conn->query("select * from userinfo where username='".$name."' and product_id = '".$id."'");
+  if ($result->num_rows>0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+function db_result_to_array($result) {
+   $res_array = array();
+   
+   for ($count=0; $row = $result->fetch_assoc(); $count++) {
+     $res_array[$count] = $row;
+   }
+   
+   return $res_array;
+}
+function get_detail($table_name){
+    $conn=db_connect();
+    if($table_name=="seq"){
+        $query="select * from seq order by stat DESC, SeqKind,AcceptTime_seq, SampleName";
+    }else{
+        $query="select * from $table_name order by AcceptTime_lib,SampleName";
+    }
+if($table_name == 'complete'){
+$query="select * from $table_name order by CompleteTime DESC,Lane, SampleName";
+}
+$conn->query("SET NAMES UTF8");
+$result=$conn->query($query);
+if(!$result){
+return false;
+}
+return $result;
+}
+
+function get_titles($Category){
+  $conn=db_connect();
+  $query="select * from Term_Description where Category like '%".$Category."%'";
+#  $query="select * from Term_Description";
+
+  $conn->query("SET NAMES UTF8");
+  $result=$conn->query($query);
+  if(!$result){
+    return false;
+  }else{
+    return $result;
+  }
+}
+
+function get_term($Category,$Title){
+  $conn=db_connect();
+  $query="select * from Term_Description where Category like '%".$Category."%' and Title like '%".$Title."%'";
+#  $query="select * from Term_Description";
+
+  $conn->query("SET NAMES UTF8");
+  $result=$conn->query($query);
+  if(!$result){
+    return false;
+  }
+  while($rows = $result->fetch_assoc()){
+    $genefactor = str_replace("：","：<br>",$rows["Gen_F"]);
+    $genefactor = str_replace("；","；<br>",$genefactor);
+    $envfactor = str_replace("：","：<br>",$rows["Env_F"]);
+    $envfactor = str_replace("；","；<br>",$envfactor);
+    echo "<tr><td class='col1'>项目描述</td><td>".$rows["Description"]."</td></tr><tr>
+              <td class='col1'>遗传因素</td><td>".$genefactor."</td></tr><tr>
+              <td class='col1'>外界因素</td><td>".$envfactor."</td></tr>";
+  }
+}
+
+function get_solution($Category,$Title,$Score){
+  $conn=db_connect();
+  $query="select * from Solution where Category like '%".$Category."%' and Title like '%".$Title."%' and Score = ".$Score;
+#  echo $query;
+#  $query="select * from Term_Description";
+  $conn->query("SET NAMES UTF8");
+  $result=$conn->query($query);
+  if(!$result){
+    return false;
+  }
+  while($rows = $result->fetch_assoc()){
+    #echo "<tr><td class='col1'>食物护理</td><td>".$rows["Food"]."</td></tr>";
+    $food = explode("：", $rows["Food"]);
+    echo "<tr><td class='col1'>食物护理</td><td>".$food[0]."</td></tr>";
+    display_food($rows["Food"]);
+    echo "<tr><td class='col1'>内服建议</td><td>".$rows["Oral"]."</td></tr><tr>
+              <td class='col1'>护肤建议</td><td>".$rows["Pro"]."</td></tr><tr>
+              <td class='col1'>医疗措施</td><td>".$rows["Top"]."</td></tr>";
+  }
+}
+function display_food($food){
+  $food = explode("：", $food);
+  $food = str_replace('。',"",$food[1]);
+  $foods = explode("、",$food);
+  echo "<tr><td class='col1'></td><td><table><tr>";
+  foreach ($foods as $value) {
+    echo "<td><img src='icon/".get_food_id($value).".gif' width='100%' style='display: block;' /></td>";
+  }
+  echo "</tr><tr>";
+  foreach ($foods as $value) {
+    echo "<td style='text-align: center;'>".$value."</td>";
+  }
+  echo "</tr></table></td></tr>";
+}
+function get_food_id($food){
+  $conn=db_connect();
+  $query="select * from Icon where NAME like '%".$food."%'";
+  $conn->query("SET NAMES UTF8");
+  $result=$conn->query($query);
+  while($rows = $result->fetch_assoc()){
+    return $rows["ID"];
+  }
+}
+?>
